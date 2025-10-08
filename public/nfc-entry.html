@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI未来回音 - NFC入口</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .icon { font-size: 4rem; margin-bottom: 20px; }
+        h1 { color: #333; margin-bottom: 10px; }
+        .url-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📱</div>
+        <h1>AI 未来回音</h1>
+        <p>NFC触碰进入体验</p>
+        
+        <div class="url-box" id="currentUrl">
+            加载中...
+        </div>
+        
+        <button onclick="enterApp()">🚀 进入应用</button>
+        <button onclick="showNFCHelp()">📝 NFC设置帮助</button>
+        
+        <div style="margin-top: 20px; color: #666; font-size: 14px;">
+            <p>💡 通过NFC标签快速访问此页面</p>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前URL
+        document.getElementById('currentUrl').textContent = window.location.href;
+        
+        function enterApp() {
+            // 跳转到主应用
+            window.location.href = window.location.origin;
+        }
+        
+        function showNFCHelp() {
+            const url = window.location.href;
+            alert(`📱 NFC设置说明：\n\n1. 复制当前URL：\n${url}\n\n2. 使用NFC Tools App写入标签\n3. 手机触碰即可快速访问`);
+        }
+        
+        // 自动跳转（可选）
+        setTimeout(() => {
+            if (window.location.hash !== '#noauto') {
+                enterApp();
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
