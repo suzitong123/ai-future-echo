@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 未来回音</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 { text-align: center; margin-bottom: 10px; color: #333; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result { margin-top: 25px; padding-top: 25px; border-top: 1px solid #eee; }
+        .loading { text-align: center; padding: 20px; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕒 AI 未来回音</h1>
+        <p class="subtitle">写下此刻的心声，遇见未来的自己</p>
+        
+        <textarea id="userInput" placeholder="分享你此刻的想法、梦想或困惑..."></textarea>
+        <button id="generateBtn" onclick="generateFutureLetter()">✨ 生成未来回音</button>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>AI正在构思来自未来的信件...</p>
+        </div>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>💌 来自未来的信</h3>
+            <div id="letterContent" style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin: 15px 0; line-height: 1.6;"></div>
+            <button onclick="speakLetter()">🔊 朗读信件</button>
+        </div>
+    </div>
+
+    <script>
+        // 自动检测环境并设置API端点
+        const isVercel = window.location.hostname.includes('vercel.app');
+        const isLocal = window.location.hostname.includes('localhost') || 
+                       window.location.hostname.includes('127.0.0.1');
+        
+        const API_BASE = isVercel ? window.location.origin : 
+                        isLocal ? 'http://localhost:3000' : 
+                        window.location.origin;
+
+        console.log('运行环境:', { isVercel, isLocal, API_BASE });
+
+        async function generateFutureLetter() {
+            const input = document.getElementById('userInput').value.trim();
+            if (!input) {
+                alert('请先写下一些内容！');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+
+            btn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                // 尝试调用后端API
+                const response = await fetch(`${API_BASE}/api/generate-capsule`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(data.letter);
+                } else {
+                    throw new Error('API请求失败');
+                }
+            } catch (error) {
+                console.log('使用模拟数据:', error.message);
+                // 模拟数据作为备选
+                const mockLetter = generateMockLetter(input);
+                showResult(mockLetter);
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function showResult(letter) {
+            document.getElementById('letterContent').textContent = letter;
+            document.getElementById('result').style.display = 'block';
+            window.currentLetter = letter;
+        }
+
+        function generateMockLetter(input) {
+            const templates = [
+                `亲爱的现在的我，\n\n我是5年后的你。看到你此刻的想法："${input}"，我想告诉你，生命中的每一个阶段都有其独特的意义。那些让你思考的时刻，那些让你成长的经历，都在悄悄塑造着更美好的你。\n\n相信时间的魔力，保持心灵的开放，未来会以你意想不到的方式展开。记住，最美好的风景往往在路上，而不只是在目的地。\n\n—— 永远相信你的未来我`,
+
+                `嗨！现在的你，\n\n我是未来版本的你！听说你正在思考关于"${input}"，这真是太棒了！每一个真诚的思考都是通向更好未来的钥匙。\n\n想象一下，3年后的你在回头看时，会深深感激现在这个勇敢探索的自己。保持好奇心，继续前行，你拥有的潜力超乎你的想象！\n\n✨ 与你同行的未来我`
+            ];
+            return templates[Math.floor(Math.random() * templates.length)];
+        }
+
+        function speakLetter() {
+            if (!window.currentLetter) return;
+            
+            if ('speechSynthesis' in window) {
+                const speech = new SpeechSynthesisUtterance(window.currentLetter);
+                speech.lang = 'zh-CN';
+                speech.rate = 0.9;
+                window.speechSynthesis.speak(speech);
+            } else {
+                alert('您的浏览器不支持语音朗读功能');
+            }
+        }
+
+        // NFC检测 - 如果是通过NFC访问，显示欢迎信息
+        if (window.location.search.includes('nfc=true') || 
+            document.referrer.includes('nfc')) {
+            console.log('📱 NFC访问检测');
+        }
+    </script>
+</body>
+</html>
